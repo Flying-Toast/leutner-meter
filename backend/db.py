@@ -41,10 +41,11 @@ def submit_vote(vote):
     with open(mealfile, "a") as mf:
         mf.write(f"\n{vote.timestamp.hour}:{vote.timestamp.minute}:{vote.timestamp.second} {vote.score}")
 
-# score of the current meal
-def current_score():
+def current_stats():
     mealfile = get_todaypath() / mealtostr(current_meal())
-    lines = Path(mealfile).read_text().split("\n")[1:]
+    lines = Path(mealfile).read_text().strip().split("\n")
+    if lines == [""]:
+        return (0, 0)
 
     n_scores = 0
     tot = 0
@@ -52,6 +53,4 @@ def current_score():
         tot += int(line.split(" ")[1])
         n_scores += 1
 
-    if n_scores == 0:
-        return None
-    return tot / n_scores
+    return (tot, n_scores)
