@@ -37,20 +37,24 @@ class Vote:
         pass
 
 def submit_vote(vote):
+    create_today()
     mealfile = get_todaypath() / mealtostr(vote.meal)
-    with open(mealfile, "a") as mf:
-        mf.write(f"\n{vote.timestamp.hour}:{vote.timestamp.minute}:{vote.timestamp.second} {vote.score}")
+    (tot, n_scores) = get_stats(mealfile)
+    write_stats(mealfile, tot + vote.score, n_scores + 1)
+
+def get_stats(mealfile):
+    line = Path(mealfile).read_text()
+    if line == "":
+        return (0, 0)
+    parts = line.split(" ")
+
+    return (int(parts[1]), int(parts[0]))
+
+def write_stats(mealfile, tot, n_scores):
+    with open(mealfile, "w") as mf:
+        mf.write(f"{n_scores} {tot}")
 
 def current_stats():
+    create_today()
     mealfile = get_todaypath() / mealtostr(current_meal())
-    lines = Path(mealfile).read_text().strip().split("\n")
-    if lines == [""]:
-        return (0, 0)
-
-    n_scores = 0
-    tot = 0
-    for line in lines:
-        tot += int(line.split(" ")[1])
-        n_scores += 1
-
-    return (tot, n_scores)
+    get_stats(mealfile)
