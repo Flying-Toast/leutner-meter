@@ -12,5 +12,8 @@ def get_todaypath():
 
 def create_today():
     todaypath = get_todaypath()
-    makedirs(todaypath.parent)
-    open(todaypath, "a").close()
+    makedirs(todaypath)
+    open(todaypath / "breakfast", "a").close()
+    open(todaypath / "brunch", "a").close()
+    open(todaypath / "lunch", "a").close()
+    open(todaypath / "dinner", "a").close()
