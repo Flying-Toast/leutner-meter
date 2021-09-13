@@ -6,7 +6,7 @@ import db
 app = Flask(__name__)
 
 @app.route("/stats")
-def index():
+def getstats():
     curr_meal = current_meal()
     res = {
         "current_meal": db.mealtostr(curr_meal),
