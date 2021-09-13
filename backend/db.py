@@ -39,7 +39,7 @@ class Vote:
 def submit_vote(vote):
     mealfile = get_todaypath() / mealtostr(vote.meal)
     with open(mealfile, "a") as mf:
-        mf.write(f"\n{vote.timestamp.hour}:{vote.timestamp.minute} {vote.score}")
+        mf.write(f"\n{vote.timestamp.hour}:{vote.timestamp.minute}:{vote.timestamp.second} {vote.score}")
 
 # score of the current meal
 def current_score():
@@ -51,4 +51,7 @@ def current_score():
     for line in lines:
         tot += int(line.split(" ")[1])
         n_scores += 1
+
+    if n_scores == 0:
+        return None
     return tot / n_scores
