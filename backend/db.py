@@ -23,7 +23,10 @@ def mealtostr(m):
 
 def create_today():
     todaypath = get_todaypath()
-    makedirs(todaypath)
+    try:
+        makedirs(todaypath)
+    except:
+        pass
     open(todaypath / "breakfast", "a").close()
     open(todaypath / "brunch", "a").close()
     open(todaypath / "lunch", "a").close()
@@ -57,4 +60,4 @@ def write_stats(mealfile, tot, n_scores):
 def current_stats():
     create_today()
     mealfile = get_todaypath() / mealtostr(current_meal())
-    get_stats(mealfile)
+    return get_stats(mealfile)
