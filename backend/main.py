@@ -9,6 +9,4 @@ def index():
     return "aaaaaa"
 
 if __name__ == "__main__":
-    from db import create_today
-    create_today()
     app.run()
