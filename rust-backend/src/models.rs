@@ -24,6 +24,10 @@ impl Vote {
         if let Some(curr_meal) = Meal::get_or_create_current(conn).await {
             let curr_meal = curr_meal.map_err(BackendError::DieselError)?;
 
+            if curr_meal.has_user_voted(&voter_caseid, conn).await.map_err(BackendError::DieselError)? {
+                return Err(BackendError::UserAlreadyVoted);
+            }
+
             conn.run(move |c| {
                 diesel::insert_into(votes::table)
                     .values(NewVote {
@@ -168,10 +172,10 @@ impl Meal {
     /// Whether or not the given caseid has already voted in this period
     pub async fn has_user_voted(&self, case_id: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
         let s2 = self.clone();
-        let case_id = case_id.to_string();
+        let case_id_clone = case_id.to_string();
         conn.run(move |c| {
             Vote::belonging_to(&s2)
-                .filter(votes::dsl::voter_caseid.eq(case_id))
+                .filter(votes::dsl::voter_caseid.eq(case_id_clone))
                 .count()
                 .get_result::<i64>(c)
         }).await.map(|cnt| cnt == 0)
