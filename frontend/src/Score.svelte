@@ -4,7 +4,7 @@
 </script>
 
 <div>
-	<span id="numerator">{score}</span> <span>/ {outOf}</span>
+	<span id="numerator">{score ? score : ".."}</span> <span>/ {outOf}</span>
 </div>
 
 <style>

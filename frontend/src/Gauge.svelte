@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Score from "./Score.svelte";
-
 	export let min: number;
 	export let max: number;
 	export let value: number;
@@ -32,8 +30,6 @@
 		<span class="upper-tick">10</span>
 	</div>
 </div>
-
-<Score score={value} outOf={max}/>
 
 <style>
 	#color-swatch {

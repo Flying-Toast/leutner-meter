@@ -42,5 +42,10 @@ def addvote():
     else:
         return ("Score is out of range", 400)
 
+@app.after_request
+def post_request(resp):
+    resp.headers.add("Access-Control-Allow-Origin", "*")
+    return resp
+
 if __name__ == "__main__":
-    app.run()
+    app.run(port=8080, host="0.0.0.0")
