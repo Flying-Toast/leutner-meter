@@ -198,7 +198,7 @@ impl Meal {
                 .filter(votes::dsl::voter_caseid.eq(case_id_clone))
                 .count()
                 .get_result::<i64>(c)
-        }).await.map(|cnt| cnt == 0)
+        }).await.map(|cnt| cnt != 0)
     }
 
     /// The `Meal` instance for the current meal on the current day
