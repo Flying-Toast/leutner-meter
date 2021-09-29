@@ -26,6 +26,9 @@
 		// delay the loading so that the spinner shows for longer
 		new Promise(resolve => setTimeout(resolve, 800)),
 	])
+		.catch(err => {
+			alert("Error connecting to server. Either my roommate tripped over the power cord, or Case's shitty wifi is acting up again.");
+		})
 		.then(([resp, ..._]) => resp.json())
 		.then(data => {
 			finishedApiFetch = true;
