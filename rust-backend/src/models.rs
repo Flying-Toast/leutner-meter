@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc, Duration, Datelike, Weekday, Timelike};
 use diesel::{
     prelude::*,
     Queryable, Associations, RunQueryDsl,
+    dsl::sum,
 };
 use crate::{
     DbConn, BackendError,
@@ -169,8 +170,27 @@ no_arg_sql_function!(
 );
 
 impl Meal {
+    /// Ok value is (total_score, num_votes)
+    pub async fn get_stats(&self, conn: &DbConn) -> Result<(i64, i64), diesel::result::Error> {
+        let s2 = self.clone();
+        let total_score = conn.run(move |c| {
+            Vote::belonging_to(&s2)
+                .select(sum(votes::dsl::score))
+                .get_result::<Option<i64>>(c)
+        }).await?.unwrap();
+
+        let s3 = self.clone();
+        let num_votes = conn.run(move |c| {
+            Vote::belonging_to(&s3)
+                .count()
+                .get_result::<i64>(c)
+        }).await?;
+
+        Ok((total_score, num_votes))
+    }
+
     /// Whether or not the given caseid has already voted in this period
-    pub async fn has_user_voted(&self, case_id: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
+    async fn has_user_voted(&self, case_id: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
         let s2 = self.clone();
         let case_id_clone = case_id.to_string();
         conn.run(move |c| {

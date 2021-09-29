@@ -46,6 +46,7 @@ async fn apply_diesel_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
 
     {
         println!("{:?}", models::Meal::get_or_create_current(&conn).await);
+        // Vote::insert_for_current_meal
     }
 
 
