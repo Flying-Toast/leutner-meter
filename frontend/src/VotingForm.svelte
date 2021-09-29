@@ -25,8 +25,9 @@
 			if (resp.status != 200) {
 				resp.text()
 					.then(txt => alert(`Error submitting vote: ${txt}`));
+			} else {
+				window.location = "";
 			}
-			window.location = "";
 		});
 	}
 </script>
