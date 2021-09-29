@@ -135,7 +135,7 @@ impl MealPeriod {
 
 /// returns (year, month, day, _)
 fn now() -> (i32, i32, i32, DateTime<Utc>) {
-    let now = Utc::now() + Duration::hours(4);
+    let now = Utc::now() - Duration::hours(4);
 
     (now.year() as i32, now.month() as i32, now.day() as i32, now)
 }
