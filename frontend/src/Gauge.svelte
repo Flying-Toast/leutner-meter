@@ -48,10 +48,12 @@
 
 	.lower-tick {
 		float: left;
+		color: #AD0F0F;
 	}
 
 	.upper-tick {
 		float: right;
+		color: #14AD0F;
 	}
 
 	#track {
