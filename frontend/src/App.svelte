@@ -3,6 +3,7 @@
 	import Header from "./Header.svelte";
 	import Score from "./Score.svelte";
 	import Loader from "./Loader.svelte";
+	import CurrentMeal from "./CurrentMeal.svelte";
 
 	const maxScore = 10;
 
@@ -10,9 +11,9 @@
 	let numVotes: number;
 	let currentMeal: string;
 	let finishedFetch: boolean = false;
+	let mealInProgress: boolean;
 
-	//$: score = numVotes > 0 ? Math.round(scoresTotal / numVotes) : null;
-	let score = 4;
+	$: score = numVotes > 0 ? Math.round(scoresTotal / numVotes) : null;
 
 	Promise.all([
 		fetch(`http://${location.hostname}:8080/stats`, { method: "GET" }),
@@ -37,8 +38,11 @@
 	<Header/>
 
 	{#if finishedFetch}
-		<Gauge min={0} max={maxScore} value={score}/>
-		<Score {score} outOf={maxScore}/>
+		<CurrentMeal meal={currentMeal}/>
+		{#if mealInProgress}
+			<Gauge min={0} max={maxScore} value={score}/>
+			<Score {score} outOf={maxScore}/>
+		{/if}
 	{:else}
 		<Loader/>
 	{/if}
