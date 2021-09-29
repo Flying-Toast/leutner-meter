@@ -44,39 +44,40 @@
 </script>
 
 <div class="center">
-	<Header/>
+	<div class="wrapper">
+		<Header/>
 
-	{#if finishedApiFetch}
-		{#if mealInProgress}
-			{#if hash == "#vote"}
-				<VotingForm {maxScore}/>
-			{:else}
-				<Gauge min={0} max={maxScore} value={score}/>
-				{#if numVotes == 0}
-					<div>Nobody has rated this meal yet.<br>Scan the QR code on your way out of Leutner to rate your meal.</div>
+		{#if finishedApiFetch}
+			{#if mealInProgress}
+				{#if hash == "#vote"}
+					<VotingForm {maxScore}/>
 				{:else}
-					<Score {score} outOf={maxScore}/>
-					<div class="num-votes">Based on {numVotes} votes</div>
+					<Gauge min={0} max={maxScore} value={score}/>
+					{#if numVotes == 0}
+						<div>Nobody has rated this meal yet.<br>Scan the QR code on your way out of Leutner to rate your meal.</div>
+					{:else}
+						<Score {score} outOf={maxScore}/>
+						<div class="num-votes">Based on {numVotes} votes</div>
+					{/if}
 				{/if}
 			{/if}
-		{/if}
 
-		<div class="current-meal-wrapper">
 			<hr>
 			<CurrentMeal meal={currentMeal}/>
-		</div>
-	{:else}
-		<Loader/>
-	{/if}
+		{:else}
+			<Loader/>
+		{/if}
+	</div>
 </div>
 
 <style>
-	.center {
-		text-align: center;
+	.wrapper {
+		display: inline-block;
+		margin: 4px;
 	}
 
-	.current-meal-wrapper {
-		display: inline-block;
+	.center {
+		text-align: center;
 	}
 
 	hr {
