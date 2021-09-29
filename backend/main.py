@@ -43,8 +43,10 @@ def addvote():
         return ("Score is out of range", 400)
 
 @app.after_request
-def post_request(resp):
+def after_request(resp):
     resp.headers.add("Access-Control-Allow-Origin", "*")
+    resp.headers.add("Access-Control-Allow-Methods", "POST, GET")
+    resp.headers.add("Access-Control-Allow-Headers", "*")
     return resp
 
 if __name__ == "__main__":

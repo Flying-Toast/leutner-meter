@@ -50,6 +50,7 @@
 			{:else}
 				<Gauge min={0} max={maxScore} value={score}/>
 				<Score {score} outOf={maxScore}/>
+				<div class="num-votes">Based on {numVotes} votes</div>
 			{/if}
 		{/if}
 
@@ -74,5 +75,9 @@
 	hr {
 		border: 0.5px solid #838383;
 		border-radius: 1px;
+	}
+
+	.num-votes {
+		font-size: 10px;
 	}
 </style>

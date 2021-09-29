@@ -4,9 +4,30 @@
 	export let maxScore: number;
 
 	let score = maxScore / 2;
+	let submitted = false;
 
 	function submitVote(e) {
-		console.log(e);
+		e.preventDefault();
+		if (submitted) return;
+
+		let prom = fetch(`http://${location.hostname}:8080/vote`, {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				score: score
+			})
+		});
+		submitted = true;
+
+		prom.then(resp => {
+			if (resp.status != 200) {
+				resp.text()
+					.then(txt => alert(`Error submitting vote: ${txt}`));
+			}
+			window.location = "";
+		});
 	}
 </script>
 
