@@ -9,7 +9,7 @@ use crate::{
 };
 use std::fmt;
 
-#[derive(Queryable, Associations)]
+#[derive(Queryable, Associations, Identifiable)]
 #[belongs_to(Meal, foreign_key = "meal_id")]
 pub struct Vote {
     pub id: i32,
@@ -140,7 +140,7 @@ fn now() -> (i32, i32, i32, DateTime<Utc>) {
     (now.year() as i32, now.month() as i32, now.day() as i32, now)
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Debug, Identifiable, Clone)]
 pub struct Meal {
     pub id: i32,
     pub year: i32,
@@ -165,6 +165,18 @@ no_arg_sql_function!(
 );
 
 impl Meal {
+    /// Whether or not the given caseid has already voted in this period
+    pub async fn has_user_voted(&self, case_id: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
+        let s2 = self.clone();
+        let case_id = case_id.to_string();
+        conn.run(move |c| {
+            Vote::belonging_to(&s2)
+                .filter(votes::dsl::voter_caseid.eq(case_id))
+                .count()
+                .get_result::<i64>(c)
+        }).await.map(|cnt| cnt == 0)
+    }
+
     /// The `Meal` instance for the current meal on the current day
     pub async fn get_or_create_current(conn: &DbConn) -> Option<Result<Self, diesel::result::Error>> {
         use meals::dsl;

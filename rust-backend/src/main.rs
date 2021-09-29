@@ -15,6 +15,7 @@ use std::fmt;
 pub enum BackendError {
     DieselError(diesel::result::Error),
     NoMealInProgress,
+    UserAlreadyVoted,
 }
 
 impl fmt::Display for BackendError {
@@ -24,6 +25,7 @@ impl fmt::Display for BackendError {
         match self {
             DieselError(e) => write!(f, "{}", e),
             NoMealInProgress => write!(f, "No meal in progress"),
+            UserAlreadyVoted => write!(f, "User already submitted a vote for this period"),
         }
     }
 }
