@@ -9,6 +9,7 @@ use rocket::{
     Rocket, Build,
     fairing::AdHoc,
 };
+use std::fmt;
 
 #[derive(Debug)]
 pub enum BackendError {
@@ -16,8 +17,8 @@ pub enum BackendError {
     NoMealInProgress,
 }
 
-impl std::fmt::Display for BackendError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for BackendError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use BackendError::*;
 
         match self {

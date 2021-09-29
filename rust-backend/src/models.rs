@@ -7,6 +7,7 @@ use crate::{
     DbConn, BackendError,
     schema::{votes, meals},
 };
+use std::fmt;
 
 #[derive(Queryable, Associations)]
 #[belongs_to(Meal, foreign_key = "meal_id")]
@@ -47,12 +48,26 @@ struct NewVote {
     score: i32,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum MealPeriod {
     Breakfast,
     Brunch,
     Lunch,
     Dinner,
+}
+
+impl fmt::Display for MealPeriod {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use MealPeriod::*;
+        let string = match self {
+            Breakfast => "breakfast",
+            Brunch => "brunch",
+            Lunch => "lunch",
+            Dinner => "dinner",
+        };
+
+        write!(f, "{}", string)
+    }
 }
 
 macro_rules! time {
@@ -168,7 +183,7 @@ impl Meal {
 
         Some(if let Err(diesel::result::Error::NotFound) = result {
             let meal_id = conn.run(move |c| {
-                let res = diesel::insert_into(meals::table)
+                let _ = diesel::insert_into(meals::table)
                     .values(NewMeal {
                         year: nowyear,
                         month: nowmonth,
