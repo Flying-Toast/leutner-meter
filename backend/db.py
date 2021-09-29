@@ -20,6 +20,8 @@ def mealtostr(m):
         return "lunch"
     if m == Meal.Dinner:
         return "dinner"
+    else:
+        return None
 
 def create_today():
     todaypath = get_todaypath()
