@@ -177,7 +177,7 @@ impl Meal {
             Vote::belonging_to(&s2)
                 .select(sum(votes::dsl::score))
                 .get_result::<Option<i64>>(c)
-        }).await?.unwrap();
+        }).await?.unwrap_or(0);
 
         let s3 = self.clone();
         let num_votes = conn.run(move |c| {
