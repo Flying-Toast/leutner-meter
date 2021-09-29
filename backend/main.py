@@ -9,27 +9,38 @@ app = Flask(__name__)
 def getstats():
     curr_meal = current_meal()
     res = {
-        "current_meal": db.mealtostr(curr_meal),
+        "currentMeal": db.mealtostr(curr_meal),
     }
     if curr_meal is not None:
         (scoresum, nvotes) = db.current_stats()
-        res["scores_sum"] = scoresum
-        res["n_votes"] = nvotes
+        res["scoresTotal"] = scoresum
+        res["numVotes"] = nvotes
 
     return jsonify(res)
 
 @app.route("/vote", methods = ["POST"])
 def addvote():
-    try:
-        submitted_score = int(request.form["score"])
-        if submitted_score >= 0 and submitted_score <= 10:
-            v = db.Vote(current_meal(), submitted_score)
-            db.submit_vote(v)
-            return ("Done", 200)
-        else:
-            return ("Bad vote", 400)
-    except:
-        return ("Bad vote", 400)
+    bodydata = request.get_json()
+    if bodydata is None:
+        return ("Bad request", 400)
+
+    if not "score" in bodydata:
+        return ('"score" field is missing', 400)
+
+    submitted_score = bodydata["score"]
+
+    if not isinstance(submitted_score, int):
+        return ("Score is not an integer", 400)
+
+    if submitted_score >= 0 and submitted_score <= 10:
+        curr = current_meal()
+        if curr is None:
+            return ("No meal in progress", 400)
+        v = db.Vote(curr, submitted_score)
+        db.submit_vote(v)
+        return ("Vote submitted", 200)
+    else:
+        return ("Score is out of range", 400)
 
 if __name__ == "__main__":
     app.run()
