@@ -4,13 +4,13 @@
 	function mealToEmoji(m: string): string {
 		switch (m) {
 			case "breakfast":
-				return "🥞"
+				return "🥞";
 			case "brunch":
-				return "🥯"
+				return "🥯";
 			case "lunch":
-				return "🍔"
+				return "🍔";
 			case "dinner":
-				return "🥘"
+				return "🥘";
 		}
 	}
 </script>
