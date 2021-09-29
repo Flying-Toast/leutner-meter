@@ -4,7 +4,9 @@
 </script>
 
 <div>
-	<span id="numerator">{score ? score : ".."}</span> <span id="slash">/</span> <span id="denominator">{outOf}</span>
+	<span id="numerator">{(typeof(score) == "undefined" || score == null) ? ".." : score}</span>
+	<span id="slash">/</span>
+	<span id="denominator">{outOf}</span>
 </div>
 
 <style>

@@ -4,16 +4,22 @@
 	import Score from "./Score.svelte";
 	import Loader from "./Loader.svelte";
 	import CurrentMeal from "./CurrentMeal.svelte";
+	import VotingForm from "./VotingForm.svelte";
 
 	const maxScore = 10;
 
 	let scoresTotal: number;
 	let numVotes: number;
-	let currentMeal: string;
-	let finishedFetch: boolean = false;
 	let mealInProgress: boolean;
+	let currentMeal: string;
+	let finishedApiFetch = false;
+	let hash: string = location.hash;
 
 	$: score = numVotes > 0 ? Math.round(scoresTotal / numVotes) : null;
+
+	addEventListener("hashchange", () => {
+		hash = location.hash;
+	});
 
 	Promise.all([
 		fetch(`http://${location.hostname}:8080/stats`, { method: "GET" }),
@@ -22,7 +28,7 @@
 	])
 		.then(([resp, ..._]) => resp.json())
 		.then(data => {
-			finishedFetch = true;
+			finishedApiFetch = true;
 			if (data.currentMeal) {
 				scoresTotal = data.scoresTotal;
 				numVotes = data.numVotes;
@@ -37,12 +43,20 @@
 <div class="center">
 	<Header/>
 
-	{#if finishedFetch}
-		<CurrentMeal meal={currentMeal}/>
+	{#if finishedApiFetch}
 		{#if mealInProgress}
-			<Gauge min={0} max={maxScore} value={score}/>
-			<Score {score} outOf={maxScore}/>
+			{#if hash == "#vote"}
+				<VotingForm {maxScore}/>
+			{:else}
+				<Gauge min={0} max={maxScore} value={score}/>
+				<Score {score} outOf={maxScore}/>
+			{/if}
 		{/if}
+
+		<div class="current-meal-wrapper">
+			<hr>
+			<CurrentMeal meal={currentMeal}/>
+		</div>
 	{:else}
 		<Loader/>
 	{/if}
@@ -51,5 +65,14 @@
 <style>
 	.center {
 		text-align: center;
+	}
+
+	.current-meal-wrapper {
+		display: inline-block;
+	}
+
+	hr {
+		border: 0.5px solid #838383;
+		border-radius: 1px;
 	}
 </style>
