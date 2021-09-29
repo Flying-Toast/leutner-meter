@@ -52,8 +52,12 @@
 				<VotingForm {maxScore}/>
 			{:else}
 				<Gauge min={0} max={maxScore} value={score}/>
-				<Score {score} outOf={maxScore}/>
-				<div class="num-votes">Based on {numVotes} votes</div>
+				{#if numVotes == 0}
+					<div>Nobody has rated this meal yet.<br>Scan the QR code on your way out of Leutner to rate your meal.</div>
+				{:else}
+					<Score {score} outOf={maxScore}/>
+					<div class="num-votes">Based on {numVotes} votes</div>
+				{/if}
 			{/if}
 		{/if}
 
