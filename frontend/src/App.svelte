@@ -1,8 +1,15 @@
 <script lang="ts">
 	import Gauge from "./Gauge.svelte";
-	let foo = 3;
+	import Header from "./Header.svelte";
 </script>
 
-<input type="number" bind:value={foo}>
+<div class="center">
+	<Header/>
+	<Gauge min={0} max={10} value={8}/>
+</div>
 
-<Gauge min={0} max={10} value={foo}/>
+<style>
+	.center {
+		text-align: center;
+	}
+</style>

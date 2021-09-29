@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Score from "./Score.svelte";
+
 	export let min: number;
 	export let max: number;
 	export let value: number;
@@ -24,6 +26,15 @@
 	<div id="slider" bind:this={slider}/>
 </div>
 
+<div>
+	<div id="ticks">
+		<span class="lower-tick">0</span>
+		<span class="upper-tick">10</span>
+	</div>
+</div>
+
+<Score score={value} outOf={max}/>
+
 <style>
 	#color-swatch {
 		animation-name: color-fade;
@@ -33,12 +44,24 @@
 		height: 0;
 	}
 
-	#track {
+	#ticks, #track {
 		width: 450px;
+		max-width: 80vw;
+		display: inline-block;
+	}
+
+	.lower-tick {
+		float: left;
+	}
+
+	.upper-tick {
+		float: right;
+	}
+
+	#track {
 		height: 40px;
 		background-color: #939393;
 		border-radius: 8px;
-		margin: 4px;
 		padding: 6px;
 	}
 
@@ -53,15 +76,15 @@
 
 	@keyframes color-fade {
 		0% {
-			background-color: #EB4747;
+			background-color: #E02222;
 		}
 
 		50% {
-			background-color: #EBDD47;
+			background-color: #E0D822;
 		}
 
 		100% {
-			background-color: #5AEB47;
+			background-color: #31E022;
 		}
 	}
 </style>
