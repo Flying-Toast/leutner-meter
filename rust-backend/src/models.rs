@@ -20,7 +20,7 @@ pub struct Vote {
 
 impl Vote {
     /// the usize in the returned Ok result is the number of affected rows
-    pub async fn insert_vote_for_current_meal<'a>(conn: &DbConn, voter_caseid: String, score: i32) -> Result<usize, BackendError> {
+    pub async fn insert_for_current_meal<'a>(conn: &DbConn, voter_caseid: String, score: i32) -> Result<usize, BackendError> {
         if let Some(curr_meal) = Meal::get_or_create_current(conn).await {
             let curr_meal = curr_meal.map_err(BackendError::DieselError)?;
 
