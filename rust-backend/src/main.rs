@@ -43,8 +43,7 @@ async fn apply_diesel_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
     println!("==> Done running migrations");
 
     {
-        use schema::{meals, votes};
-        use models::{Vote};
+        println!("{:?}", models::Meal::get_or_create_current(&conn).await);
     }
 
 

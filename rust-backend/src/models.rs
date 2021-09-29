@@ -140,7 +140,7 @@ fn now() -> (i32, i32, i32, DateTime<Utc>) {
     (now.year() as i32, now.month() as i32, now.day() as i32, now)
 }
 
-#[derive(Queryable)]
+#[derive(Queryable, Debug)]
 pub struct Meal {
     pub id: i32,
     pub year: i32,
@@ -178,7 +178,7 @@ impl Meal {
                 .filter(dsl::month.eq(nowmonth))
                 .filter(dsl::year.eq(nowyear))
                 .filter(dsl::meal_period.eq(curr_period.as_int()))
-                .execute(c)
+                .first::<Meal>(c)
         }).await;
 
         Some(if let Err(diesel::result::Error::NotFound) = result {
@@ -206,7 +206,10 @@ impl Meal {
                 Err(meal_id.unwrap_err())
             }
         } else {
-            Err(result.unwrap_err())
+            match result {
+                Ok(meal) => Ok(meal),
+                Err(e) => Err(e),
+            }
         })
     }
 }
