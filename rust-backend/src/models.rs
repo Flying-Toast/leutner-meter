@@ -1,0 +1,197 @@
+use chrono::{DateTime, Utc, Duration, Datelike, Weekday, Timelike};
+use diesel::{
+    prelude::*,
+    Queryable, Associations, RunQueryDsl,
+};
+use crate::{
+    DbConn, BackendError,
+    schema::{votes, meals},
+};
+
+#[derive(Queryable, Associations)]
+#[belongs_to(Meal, foreign_key = "meal_id")]
+pub struct Vote {
+    pub id: i32,
+    pub meal_id: i32,
+    pub voter_caseid: String,
+    pub score: i32,
+}
+
+impl Vote {
+    /// the usize in the returned Ok result is the number of affected rows
+    pub async fn insert_vote_for_current_meal<'a>(conn: &DbConn, voter_caseid: String, score: i32) -> Result<usize, BackendError> {
+        if let Some(curr_meal) = Meal::get_or_create_current(conn).await {
+            let curr_meal = curr_meal.map_err(BackendError::DieselError)?;
+
+            conn.run(move |c| {
+                diesel::insert_into(votes::table)
+                    .values(NewVote {
+                        meal_id: curr_meal.id,
+                        voter_caseid,
+                        score,
+                    })
+                    .execute(c)
+                    .map_err(BackendError::DieselError)
+            }).await
+        } else {
+            Err(BackendError::NoMealInProgress)
+        }
+    }
+}
+
+#[derive(Insertable)]
+#[table_name = "votes"]
+struct NewVote {
+    meal_id: i32,
+    voter_caseid: String,
+    score: i32,
+}
+
+#[derive(Copy, Clone)]
+pub enum MealPeriod {
+    Breakfast,
+    Brunch,
+    Lunch,
+    Dinner,
+}
+
+macro_rules! time {
+    ($hr:literal : $min:literal AM) => {{
+        $min + $hr * 60
+    }};
+
+    ($hr:literal : $min:literal PM) => {{
+        $min + ($hr + 12) * 60
+    }};
+}
+
+impl MealPeriod {
+    /// The meal that Leutner is serving right now
+    pub fn current(dt: &DateTime<Utc>) -> Option<Self> {
+        use Weekday::*;
+
+        let weekday = dt.weekday();
+        let atime = dt.minute() + 60 * dt.hour();
+
+        // breakfast
+        if matches!(weekday, Mon | Tue | Wed | Thu | Fri) {
+            if atime >= time!(7:00 AM) && atime <= time!(10:30 AM) {
+                return Some(MealPeriod::Breakfast);
+            }
+        }
+
+        // brunch
+        if matches!(weekday, Sat | Sun) {
+            if atime >= time!(9:30 AM) && atime <= time!(2:30 PM) {
+                return Some(MealPeriod::Brunch);
+            }
+        }
+
+        // lunch
+        if let Fri = weekday {
+            if atime >= time!(11:00 AM) && atime <= time!(5:00 PM) {
+                return Some(MealPeriod::Lunch);
+            }
+        } else {
+            if atime >= time!(11:00 AM) && atime <= time!(4:00 PM) {
+                return Some(MealPeriod::Lunch);
+            }
+        }
+
+        // dinner
+        if atime >= time!(5:00 PM) && atime <= time!(8:00 PM) {
+            return Some(MealPeriod::Dinner);
+        }
+
+        None
+    }
+
+    fn as_int(&self) -> i32 {
+        use MealPeriod::*;
+
+        match self {
+            Breakfast => 0,
+            Brunch => 1,
+            Lunch => 2,
+            Dinner => 3,
+        }
+    }
+}
+
+/// returns (year, month, day, _)
+fn now() -> (i32, i32, i32, DateTime<Utc>) {
+    let now = Utc::now() + Duration::hours(4);
+
+    (now.year() as i32, now.month() as i32, now.day() as i32, now)
+}
+
+#[derive(Queryable)]
+pub struct Meal {
+    pub id: i32,
+    pub year: i32,
+    pub month: i32,
+    pub day: i32,
+    pub meal_period: i32,
+}
+
+#[derive(Insertable)]
+#[table_name = "meals"]
+struct NewMeal {
+    year: i32,
+    month: i32,
+    day: i32,
+    meal_period: i32,
+}
+
+no_arg_sql_function!(
+    last_insert_rowid,
+    diesel::sql_types::Integer,
+    "SQLite last_insert_rowid function"
+);
+
+impl Meal {
+    /// The `Meal` instance for the current meal on the current day
+    pub async fn get_or_create_current(conn: &DbConn) -> Option<Result<Self, diesel::result::Error>> {
+        use meals::dsl;
+
+        let (nowyear, nowmonth, nowday, nowdt) = now();
+        let curr_period = MealPeriod::current(&nowdt)?;
+
+        let result = conn.run(move |c| {
+            meals::table
+                .filter(dsl::day.eq(nowday))
+                .filter(dsl::month.eq(nowmonth))
+                .filter(dsl::year.eq(nowyear))
+                .filter(dsl::meal_period.eq(curr_period.as_int()))
+                .execute(c)
+        }).await;
+
+        Some(if let Err(diesel::result::Error::NotFound) = result {
+            let meal_id = conn.run(move |c| {
+                let res = diesel::insert_into(meals::table)
+                    .values(NewMeal {
+                        year: nowyear,
+                        month: nowmonth,
+                        day: nowday,
+                        meal_period: curr_period.as_int(),
+                    })
+                    .execute(c)?;
+
+                diesel::select(last_insert_rowid)
+                    .get_result::<i32>(c)
+            }).await;
+
+            if let Ok(id) = meal_id {
+                conn.run(move |c| {
+                    meals::table
+                        .find(id)
+                        .get_result(c)
+                }).await
+            } else {
+                Err(meal_id.unwrap_err())
+            }
+        } else {
+            Err(result.unwrap_err())
+        })
+    }
+}
