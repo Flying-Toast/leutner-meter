@@ -18,7 +18,7 @@
 <div class="wrapper">
 	{#if meal}
 		<div class="emoji">{mealToEmoji(meal)}</div>
-		it is currently <span class="meal">{meal}</span>.
+		It is currently <span class="meal">{meal}</span>.
 	{:else}
 		There isn't a meal going on at Leutner right now. Check back during meal time.
 	{/if}

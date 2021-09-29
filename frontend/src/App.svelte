@@ -57,7 +57,7 @@
 						<div>Nobody has rated this meal yet.<br>Scan the QR code on your way out of Leutner to rate your meal.</div>
 					{:else}
 						<Score {score} outOf={maxScore}/>
-						<div class="num-votes">Based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
+						<div class="num-votes">based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
 					{/if}
 				{/if}
 			{/if}
