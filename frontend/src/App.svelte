@@ -22,7 +22,7 @@
 	});
 
 	Promise.all([
-		fetch(`http://${location.hostname}:8080/stats`, { method: "GET" }),
+		fetch(`${location.protocol}//${location.host}/stats`, { method: "GET" }),
 		// delay the loading so that the spinner shows for longer
 		new Promise(resolve => setTimeout(resolve, 800)),
 	])

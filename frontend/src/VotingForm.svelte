@@ -10,7 +10,7 @@
 		e.preventDefault();
 		if (submitted) return;
 
-		let prom = fetch(`http://${location.hostname}:8080/vote`, {
+		let prom = fetch(`${location.protocol}//${location.host}/vote`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json"
@@ -30,7 +30,7 @@
 				resp.text()
 					.then(txt => alert(`Error submitting vote: ${txt}`));
 			} else {
-				window.location = "";
+				location = "/";
 			}
 		});
 	}
