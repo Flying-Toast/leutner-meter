@@ -51,7 +51,7 @@ fn rocket() -> _ {
     rocket::build()
         .attach(DbConn::fairing())
         .attach(AdHoc::on_ignite("Apply diesel_migrations", apply_diesel_migrations))
-        .mount("/", FileServer::from(""))
+        .mount("/", FileServer::from("static"))
         .mount("/", rocket::routes![
         ])
 }
