@@ -32,7 +32,7 @@
 		.then(([resp, ..._]) => resp.json())
 		.then(data => {
 			finishedApiFetch = true;
-			if (data.currentMeal) {
+			if (data.current_meal) {
 				scoresTotal = data.scores_total;
 				numVotes = data.num_votes;
 				currentMeal = data.current_meal;

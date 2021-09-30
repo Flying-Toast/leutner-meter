@@ -6,12 +6,12 @@ pub mod models;
 
 use rocket_sync_db_pools::database;
 use rocket::{
-    get, post,
+    get, post, uri,
     Rocket, Build,
     fairing::AdHoc,
     fs::FileServer,
     serde::{json::Json, Serialize},
-    response::{self, Responder, Response},
+    response::{self, Responder, Response, Redirect},
     request::Request,
     http::{Status, CookieJar, Cookie},
 };
@@ -75,6 +75,7 @@ fn rocket() -> _ {
             submit_vote,
             sso_auth,
             check_ticket,
+            auth_failed,
         ])
 }
 
@@ -110,18 +111,20 @@ async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
 }
 
 #[post("/vote")]
-async fn submit_vote(conn: DbConn) {
+async fn submit_vote(conn: DbConn, jar: &CookieJar<'_>) -> Status {
     todo!()
 }
 
 #[get("/sso-auth?<ticket>")]
-async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn) -> &'static str {
+async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn) -> Redirect {
     let url = format!(
         "https://login.case.edu/cas/validate?ticket={}&service={}",
         ticket,
         //TODO: use host header:
         "http://localhost:8000/sso-auth",
     );
+    let good_redirect = Redirect::to(uri!("/#vote"));
+    let bad_redirect = Redirect::to(uri!("/auth-failed"));
 
     //TODO: PURGE OLD TICKETS FROM TICKETS TABLE
     if let Ok(resp) = get(url).await {
@@ -131,21 +134,26 @@ async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn) -> &'static
                 if let Some(username) = lines.next() {
                     jar.add(Cookie::new("ticket", ticket.clone()));
                     if let Err(_) = Ticket::insert_new(ticket, username.to_string(), &conn).await {
-                        return "no";
+                        return bad_redirect;
                     }
-                    return "yes";
+                    return good_redirect;
                 }
             }
         }
     }
 
-    "no"
+    bad_redirect
 }
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
 struct TicketCheck {
     is_valid: bool,
+}
+
+#[get("/auth-failed")]
+fn auth_failed() -> &'static str {
+    "Login failed. Please try again."
 }
 
 #[get("/check-ticket")]

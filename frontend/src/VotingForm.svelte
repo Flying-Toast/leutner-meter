@@ -6,6 +6,17 @@
 	let score = maxScore / 2;
 	let submitted = false;
 
+	fetch(`${location.protocol}//${location.host}/check-ticket`, { method: "GET" })
+		.catch(err => {
+			alert("Error connecting to server. Either my roommate tripped over the power cord, or Case's shitty wifi is acting up again.");
+		})
+		.then(resp => resp.json())
+		.then(data => {
+			if (!data.is_valid) {
+				location = `https://login.case.edu/cas/login?service=${location.protocol}//${location.host}/sso-auth`;
+			}
+		});
+
 	function submitVote(e) {
 		e.preventDefault();
 		if (submitted) return;
