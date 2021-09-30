@@ -6,7 +6,7 @@ pub mod models;
 
 use rocket_sync_db_pools::database;
 use rocket::{
-    get,
+    get, post,
     Rocket, Build,
     fairing::AdHoc,
     fs::FileServer,
@@ -71,6 +71,7 @@ fn rocket() -> _ {
         .mount("/", FileServer::from("static"))
         .mount("/", rocket::routes![
             get_stats,
+            submit_vote,
         ])
 }
 
@@ -103,4 +104,9 @@ async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
             }
         }
     }))
+}
+
+#[post("/vote")]
+async fn submit_vote(conn: DbConn) {
+    todo!()
 }
