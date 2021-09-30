@@ -56,6 +56,7 @@ struct NewVote {
 
 #[derive(Copy, Clone, Debug, Serialize)]
 #[serde(crate = "rocket::serde")]
+#[serde(rename_all = "lowercase")]
 pub enum MealPeriod {
     Breakfast,
     Brunch,
