@@ -13,7 +13,7 @@ use rocket::{
     serde::{json::Json, Serialize},
     response::{self, Responder, Response},
     request::Request,
-    http::Status,
+    http::{Status, CookieJar},
 };
 use std::{fmt, io::Cursor};
 use models::{MealPeriod, Meal};
@@ -72,6 +72,8 @@ fn rocket() -> _ {
         .mount("/", rocket::routes![
             get_stats,
             submit_vote,
+            sso_auth,
+            check_ticket,
         ])
 }
 
@@ -108,4 +110,27 @@ async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
 
 #[post("/vote")]
 async fn submit_vote(conn: DbConn) {
+    todo!()
+}
+
+#[get("/sso-auth?<ticket>")]
+async fn sso_auth(ticket: &str) {
+    println!("{}", ticket);
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+struct TicketCheck {
+    is_valid: bool,
+}
+
+#[get("/check-ticket")]
+async fn check_ticket(jar: &CookieJar<'_>) -> Json<TicketCheck> {
+    let is_valid =
+        match jar.get("ticket") {
+            None => false,
+            Some(c) => is_ticket_valid(c.value()),
+        };
+
+    Json(TicketCheck { is_valid, })
 }
