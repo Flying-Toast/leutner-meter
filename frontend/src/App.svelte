@@ -33,9 +33,9 @@
 		.then(data => {
 			finishedApiFetch = true;
 			if (data.currentMeal) {
-				scoresTotal = data.scoresTotal;
-				numVotes = data.numVotes;
-				currentMeal = data.currentMeal;
+				scoresTotal = data.scores_total;
+				numVotes = data.num_votes;
+				currentMeal = data.current_meal;
 				mealInProgress = true;
 			} else {
 				mealInProgress = false;

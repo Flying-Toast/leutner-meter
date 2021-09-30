@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-rocket = "0.5.0-rc.1"
+rocket = { version = "0.5.0-rc.1", features = ["json"] }
 rocket_sync_db_pools = { version = "0.1.0-rc.1", default-features = false, features = ["diesel_sqlite_pool"] }
 diesel_migrations = "1.4"
 diesel = "1.4"

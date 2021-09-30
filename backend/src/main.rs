@@ -6,11 +6,17 @@ pub mod models;
 
 use rocket_sync_db_pools::database;
 use rocket::{
+    get,
     Rocket, Build,
     fairing::AdHoc,
     fs::FileServer,
+    serde::{json::Json, Serialize},
+    response::{self, Responder, Response},
+    request::Request,
+    http::Status,
 };
-use std::fmt;
+use std::{fmt, io::Cursor};
+use models::{MealPeriod, Meal};
 
 #[derive(Debug)]
 pub enum BackendError {
@@ -28,6 +34,17 @@ impl fmt::Display for BackendError {
             NoMealInProgress => write!(f, "No meal in progress"),
             UserAlreadyVoted => write!(f, "User already submitted a vote for this period"),
         }
+    }
+}
+
+impl<'r> Responder<'r, 'static> for BackendError {
+    fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
+        let string = self.to_string();
+        Response::build()
+            .sized_body(string.len(), Cursor::new(string))
+            .raw_header("Content-Type", "text/plain")
+            .status(Status::BadRequest)
+            .ok()
     }
 }
 
@@ -53,5 +70,37 @@ fn rocket() -> _ {
         .attach(AdHoc::on_ignite("Apply diesel_migrations", apply_diesel_migrations))
         .mount("/", FileServer::from("static"))
         .mount("/", rocket::routes![
+            get_stats,
         ])
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct Stats {
+    current_meal: Option<MealPeriod>,
+    scores_total: Option<i64>,
+    num_votes: Option<i64>,
+}
+
+#[get("/stats")]
+async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
+    let current_meal = Meal::get_or_create_current(&conn).await;
+
+    Ok(Json(match current_meal {
+        None => Stats {
+            current_meal: None,
+            scores_total: None,
+            num_votes: None,
+        },
+        Some(meal) => {
+            let meal = meal.map_err(BackendError::DieselError)?;
+            let curr_stats = meal.get_stats(&conn).await.map_err(BackendError::DieselError)?;
+
+            Stats {
+                scores_total: Some(curr_stats.0),
+                num_votes: Some(curr_stats.1),
+                current_meal: Some(MealPeriod::from_int(meal.meal_period)),
+            }
+        }
+    }))
 }

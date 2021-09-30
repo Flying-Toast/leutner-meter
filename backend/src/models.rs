@@ -9,6 +9,7 @@ use crate::{
     schema::{votes, meals},
 };
 use std::fmt;
+use rocket::serde::Serialize;
 
 #[derive(Queryable, Associations, Identifiable)]
 #[belongs_to(Meal, foreign_key = "meal_id")]
@@ -53,7 +54,8 @@ struct NewVote {
     score: i32,
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub enum MealPeriod {
     Breakfast,
     Brunch,
@@ -134,6 +136,18 @@ impl MealPeriod {
             Brunch => 1,
             Lunch => 2,
             Dinner => 3,
+        }
+    }
+
+    pub fn from_int(int: i32) -> Self {
+        use MealPeriod::*;
+
+        match int {
+            0 => Breakfast,
+            1 => Brunch,
+            2 => Lunch,
+            3 => Dinner,
+            _ => panic!("Invalid meal_period int"),
         }
     }
 }

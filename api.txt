@@ -1,27 +1,27 @@
 GET /stats:
 	responds with this json:
 		{
-			"currentMeal": <...>,
-			"scoresTotal": <...>,
-			"numVotes": <...>,
+			"current_meal": <...>,
+			"scores_total": <...>,
+			"num_votes": <...>,
 		}
 
-	"currentMeal" says what meal Leutner is serving at this time. It is one of:
+	"current_meal" says what meal Leutner is serving at this time. It is one of:
 		"breakfast"
 		"brunch"
 		"lunch"
 		"dinner"
 		Or it is null if there isn't a meal currently going on
 
-	"scoresTotal" is the total of all votes that have been submitted during this meal (not averaged!).
-		e.g. if 3 people submit votes of 5, 4, and 9, then "scoresTotal" = 5 + 4 + 9 = 18
+	"scores_total" is the total of all votes that have been submitted during this meal (not averaged!).
+		e.g. if 3 people submit votes of 5, 4, and 9, then "scores_total" = 5 + 4 + 9 = 18
 
-	"numVotes" is how many votes have been submitted during the current meal.
-		if 3 people have voted, then "numVotes" = 3.
+	"num_votes" is how many votes have been submitted during the current meal.
+		if 3 people have voted, then "num_votes" = 3.
 
-	The average score for the current meal is "scoresTotal" divided by "numVotes"
+	The average score for the current meal is "scores_total" divided by "num_votes"
 
-	If "currentMeal" is null (i.e. leutner is currently closed), then the "scoresTotal" and "numVotes" fields won't be present
+	If "current_meal" is null (i.e. leutner is currently closed), then the "scores_total" and "num_votes" fields will both be null
 
 POST /vote:
 	requires this body data (json):
