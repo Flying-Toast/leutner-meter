@@ -10,6 +10,7 @@ import css from 'rollup-plugin-css-only';
 const production = !process.env.ROLLUP_WATCH;
 
 function serve() {
+	/*
 	let server;
 
 	function toExit() {
@@ -28,6 +29,7 @@ function serve() {
 			process.on('exit', toExit);
 		}
 	};
+	*/
 }
 
 export default {
@@ -36,7 +38,7 @@ export default {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: '../backend/static/build/bundle.js'
 	},
 	plugins: [
 		svelte({

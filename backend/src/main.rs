@@ -8,6 +8,7 @@ use rocket_sync_db_pools::database;
 use rocket::{
     Rocket, Build,
     fairing::AdHoc,
+    fs::FileServer,
 };
 use std::fmt;
 
@@ -39,23 +40,8 @@ async fn apply_diesel_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
     let conn = DbConn::get_one(&rocket).await
         .expect("database connection");
 
-    println!("==> Running migrations...");
     conn.run(|c| embedded_migrations::run_with_output(c, &mut std::io::stdout())).await
         .expect("run migrations");
-    println!("==> Done running migrations");
-
-    // TESTING AREA
-    {
-        use models::{Vote,Meal};
-
-        println!("{:?}", Meal::get_or_create_current(&conn).await.unwrap().unwrap().get_stats(&conn).await);
-        // Vote::insert_for_current_meal
-        println!("{:?}",
-            Vote::insert_for_current_meal(&conn, "srs266".into(), 5).await
-        );
-        println!("{:?}", Meal::get_or_create_current(&conn).await.unwrap().unwrap().get_stats(&conn).await);
-    }
-
 
     rocket
 }
@@ -65,6 +51,7 @@ fn rocket() -> _ {
     rocket::build()
         .attach(DbConn::fairing())
         .attach(AdHoc::on_ignite("Apply diesel_migrations", apply_diesel_migrations))
+        .mount("/", FileServer::from(""))
         .mount("/", rocket::routes![
         ])
 }
