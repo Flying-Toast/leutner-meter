@@ -108,5 +108,4 @@ async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
 
 #[post("/vote")]
 async fn submit_vote(conn: DbConn) {
-    todo!()
 }

@@ -26,13 +26,13 @@
 				alert("Error connecting to server. Either my roommate tripped over the power cord, or Case's shitty wifi is acting up again.");
 			})
 			.then(resp => {
-			if (resp.status != 200) {
-				resp.text()
-					.then(txt => alert(`Error submitting vote: ${txt}`));
-			} else {
-				location = "/";
-			}
-		});
+				if (resp.status != 200) {
+					resp.text()
+						.then(txt => alert(`Error submitting vote: ${txt}`));
+				} else {
+					location = "/";
+				}
+			});
 	}
 </script>
 
