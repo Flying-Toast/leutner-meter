@@ -9,6 +9,14 @@ table! {
 }
 
 table! {
+    tickets (id) {
+        id -> Integer,
+        ticket -> Text,
+        case_id -> Text,
+    }
+}
+
+table! {
     votes (id) {
         id -> Integer,
         meal_id -> Integer,
@@ -21,5 +29,6 @@ joinable!(votes -> meals (meal_id));
 
 allow_tables_to_appear_in_same_query!(
     meals,
+    tickets,
     votes,
 );
