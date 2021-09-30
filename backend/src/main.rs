@@ -13,10 +13,11 @@ use rocket::{
     serde::{json::Json, Serialize},
     response::{self, Responder, Response},
     request::Request,
-    http::{Status, CookieJar},
+    http::{Status, CookieJar, Cookie},
 };
 use std::{fmt, io::Cursor};
-use models::{MealPeriod, Meal};
+use models::{MealPeriod, Meal, Ticket};
+use reqwest::get;
 
 #[derive(Debug)]
 pub enum BackendError {
@@ -114,8 +115,31 @@ async fn submit_vote(conn: DbConn) {
 }
 
 #[get("/sso-auth?<ticket>")]
-async fn sso_auth(ticket: &str) {
-    println!("{}", ticket);
+async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn) -> &'static str {
+    let url = format!(
+        "https://login.case.edu/cas/validate?ticket={}&service={}",
+        ticket,
+        //TODO: use host header:
+        "http://localhost:8000/sso-auth",
+    );
+
+    //TODO: PURGE OLD TICKETS FROM TICKETS TABLE
+    if let Ok(resp) = get(url).await {
+        if let Ok(text) = resp.text().await {
+            let mut lines = text.lines();
+            if let Some("yes") = lines.next() {
+                if let Some(username) = lines.next() {
+                    jar.add(Cookie::new("ticket", ticket.clone()));
+                    if let Err(_) = Ticket::insert_new(ticket, username.to_string(), &conn).await {
+                        return "no";
+                    }
+                    return "yes";
+                }
+            }
+        }
+    }
+
+    "no"
 }
 
 #[derive(Serialize)]
@@ -125,11 +149,11 @@ struct TicketCheck {
 }
 
 #[get("/check-ticket")]
-async fn check_ticket(jar: &CookieJar<'_>) -> Json<TicketCheck> {
+async fn check_ticket(jar: &CookieJar<'_>, conn: DbConn) -> Json<TicketCheck> {
     let is_valid =
         match jar.get("ticket") {
             None => false,
-            Some(c) => is_ticket_valid(c.value()),
+            Some(c) => Ticket::is_valid(c.value(), &conn).await.unwrap_or(false),
         };
 
     Json(TicketCheck { is_valid, })

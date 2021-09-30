@@ -6,10 +6,49 @@ use diesel::{
 };
 use crate::{
     DbConn, BackendError,
-    schema::{votes, meals},
+    schema::{votes, meals, tickets},
 };
 use std::fmt;
 use rocket::serde::Serialize;
+
+#[derive(Queryable)]
+pub struct Ticket {
+    pub id: i32,
+    pub ticket: String,
+    pub case_id: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "tickets"]
+struct NewTicket {
+    ticket: String,
+    case_id: String,
+}
+
+impl Ticket {
+    pub async fn is_valid(ticket: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
+        use tickets::dsl;
+
+        let t2 = ticket.to_string();
+        conn.run(move |c| {
+            tickets::table
+                .filter(dsl::ticket.eq(t2))
+                .count()
+                .get_result::<i64>(c)
+        }).await.map(|x| x != 0)
+    }
+
+    pub async fn insert_new(ticket: String, case_id: String, conn: &DbConn) -> Result<usize, diesel::result::Error> {
+        conn.run(move |c| {
+            diesel::insert_into(tickets::table)
+                .values(NewTicket {
+                    ticket,
+                    case_id,
+                })
+                .execute(c)
+        }).await
+    }
+}
 
 #[derive(Queryable, Associations, Identifiable)]
 #[belongs_to(Meal, foreign_key = "meal_id")]
