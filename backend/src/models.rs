@@ -48,6 +48,18 @@ impl Ticket {
                 .execute(c)
         }).await
     }
+
+    pub async fn get_case_id(conn: &DbConn, ticket: &str) -> Result<String, diesel::result::Error> {
+        use tickets::dsl;
+
+        let t2 = ticket.to_string();
+        conn.run(move |c| {
+            tickets::table
+                .filter(dsl::ticket.eq(t2))
+                .select(dsl::case_id)
+                .first(c)
+        }).await
+    }
 }
 
 #[derive(Queryable, Associations, Identifiable)]

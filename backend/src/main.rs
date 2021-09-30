@@ -10,13 +10,13 @@ use rocket::{
     Rocket, Build,
     fairing::AdHoc,
     fs::FileServer,
-    serde::{json::Json, Serialize},
+    serde::{json::Json, Serialize, Deserialize},
     response::{self, Responder, Response, Redirect},
     request::Request,
     http::{Status, CookieJar, Cookie},
 };
 use std::{fmt, io::Cursor};
-use models::{MealPeriod, Meal, Ticket};
+use models::{MealPeriod, Meal, Ticket, Vote};
 use reqwest::get;
 
 #[derive(Debug)]
@@ -24,6 +24,8 @@ pub enum BackendError {
     DieselError(diesel::result::Error),
     NoMealInProgress,
     UserAlreadyVoted,
+    ScoreOutOfRange,
+    NotAuthed,
 }
 
 impl fmt::Display for BackendError {
@@ -34,6 +36,8 @@ impl fmt::Display for BackendError {
             DieselError(e) => write!(f, "{}", e),
             NoMealInProgress => write!(f, "No meal in progress"),
             UserAlreadyVoted => write!(f, "User already submitted a vote for this period"),
+            NotAuthed => write!(f, "User is not logged in"),
+            ScoreOutOfRange => write!(f, "Score out of range"),
         }
     }
 }
@@ -110,9 +114,26 @@ async fn get_stats(conn: DbConn) -> Result<Json<Stats>, BackendError> {
     }))
 }
 
-#[post("/vote")]
-async fn submit_vote(conn: DbConn, jar: &CookieJar<'_>) -> Status {
-    todo!()
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct SubmittedVote {
+    score: u8,
+}
+
+#[post("/vote", data = "<vote>")]
+async fn submit_vote(conn: DbConn, jar: &CookieJar<'_>, vote: Json<SubmittedVote>) -> Result<(), BackendError> {
+    if let Some(c) = jar.get("ticket") {
+        if Ticket::is_valid(c.value(), &conn).await.map_err(BackendError::DieselError)? {
+            if vote.score > 10 {
+                return Err(BackendError::ScoreOutOfRange);
+            }
+            let case_id = Ticket::get_case_id(&conn, c.value()).await.map_err(BackendError::DieselError)?;
+            Vote::insert_for_current_meal(&conn, case_id, vote.score as i32).await?;
+            return Ok(());
+        }
+    }
+
+    Err(BackendError::NotAuthed)
 }
 
 #[get("/sso-auth?<ticket>")]
