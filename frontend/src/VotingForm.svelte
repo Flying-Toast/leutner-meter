@@ -3,7 +3,7 @@
 
 	export let maxScore: number;
 
-	let score = maxScore / 2;
+	let score = Math.round(maxScore / 2);
 	let submitted = false;
 
 	fetch(`${location.protocol}//${location.host}/check-ticket`, { method: "GET" })
