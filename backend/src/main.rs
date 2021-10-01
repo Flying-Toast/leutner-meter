@@ -12,7 +12,7 @@ use rocket::{
     fs::FileServer,
     serde::{json::Json, Serialize, Deserialize},
     response::{self, Responder, Response, Redirect},
-    request::Request,
+    request::{Request, FromRequest, Outcome},
     http::{Status, CookieJar, Cookie},
 };
 use std::{fmt, io::Cursor};
@@ -136,13 +136,26 @@ async fn submit_vote(conn: DbConn, jar: &CookieJar<'_>, vote: Json<SubmittedVote
     Err(BackendError::NotAuthed)
 }
 
+struct HostHeader<'a>(&'a str);
+
+#[rocket::async_trait]
+impl<'r> FromRequest<'r> for HostHeader<'r> {
+    type Error = &'static str;
+
+    async fn from_request(req: &'r Request<'_>) -> Outcome<Self, Self::Error> {
+        match req.headers().get_one("Host") {
+            Some(hdr) => Outcome::Success(Self(hdr)),
+            _ => Outcome::Failure((Status::BadRequest, "go away poo poo head")),
+        }
+    }
+}
+
 #[get("/sso-auth?<ticket>")]
-async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn) -> Redirect {
+async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn, host: HostHeader<'_>) -> Redirect {
     let url = format!(
         "https://login.case.edu/cas/validate?ticket={}&service={}",
         ticket,
-        //TODO: use host header:
-        "http://localhost:8000/sso-auth",
+        format!("http://{}/sso-auth", host.0),
     );
     let good_redirect = Redirect::to(uri!("/#vote"));
     let bad_redirect = Redirect::to(uri!("/auth-failed"));

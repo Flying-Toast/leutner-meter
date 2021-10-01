@@ -1,5 +1,6 @@
 [global]
 cli_colors = false
+address = "0.0.0.0"
 
 [global.databases]
 sqlite_db = { url = "db.sqlite" }
