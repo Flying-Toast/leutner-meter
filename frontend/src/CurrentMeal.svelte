@@ -20,7 +20,8 @@
 		<div class="emoji">{mealToEmoji(meal)}</div>
 		It is currently <span class="meal">{meal}</span>.
 	{:else}
-		There isn't a meal going on at Leutner right now. Check back during meal time.
+		<p>😯</p>
+		<h3>There isn't a meal going on at Leutner right now. Check back during meal time.</h3>
 	{/if}
 </div>
 
@@ -36,5 +37,10 @@
 
 	.emoji {
 		font-size: 200%;
+	}
+
+	p {
+		font-size: 400%;
+		margin: 4px;
 	}
 </style>
