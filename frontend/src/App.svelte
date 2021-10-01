@@ -1,4 +1,6 @@
 <script lang="ts">
+	console.log("%cAre you a %cd%ce%cv%ce%cl%co%cp%ce%cr%c? Contact srs266 if you want to contribute.", "font-size: 25px;", "font-size: 25px; color: red;", "font-size: 25px; color: orange;", "font-size: 25px; color: yellow;", "font-size: 25px; color: green;", "font-size: 25px; color: #3C3CFF;", "font-size: 25px; color: purple;", "font-size: 25px; color: red;", "font-size: 25px; color: orange;", "font-size: 25px; color: yellow;", "font-size: 25px; color: unset;");
+
 	import Gauge from "./Gauge.svelte";
 	import Header from "./Header.svelte";
 	import Score from "./Score.svelte";
