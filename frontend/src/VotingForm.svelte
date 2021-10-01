@@ -52,5 +52,5 @@
 	<Score {score} outOf={maxScore}/>
 	<input type="range" min="0" max={maxScore} bind:value={score}>
 	<br>
-	<input type="submit" value="Submit Vote">
+	<input type="submit" value="Submit Vote" disabled={submitted}>
 </form>
