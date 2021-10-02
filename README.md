@@ -2,5 +2,5 @@
 
 Running dev server:
 
-* `cd backend` & `python main.py`
+* `cd backend` & `cargo run`
 * (in a separate terminal window) `cd frontend` & `npm run dev`
