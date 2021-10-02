@@ -1,5 +1,6 @@
 CREATE TABLE tickets (
 	id INTEGER PRIMARY KEY NOT NULL,
 	ticket TEXT NOT NULL,
-	case_id TEXT NOT NULL
+	case_id TEXT NOT NULL,
+	timestamp INTEGER NOT NULL
 );

@@ -18,6 +18,7 @@ use rocket::{
 use std::{fmt, io::Cursor};
 use models::{MealPeriod, Meal, Ticket, Vote};
 use reqwest::get;
+use rocket::tokio::{self, task};
 
 #[derive(Debug)]
 pub enum BackendError {
@@ -68,11 +69,32 @@ async fn apply_diesel_migrations(rocket: Rocket<Build>) -> Rocket<Build> {
     rocket
 }
 
+async fn ticket_gc(rocket: Rocket<Build>) -> Rocket<Build> {
+    let conn = DbConn::get_one(&rocket).await
+        .expect("database connection");
+
+    task::spawn(async move {
+        loop {
+            if let Err(e) = Ticket::purge_old_tickets(&conn).await {
+                eprintln!("ERROR PURGING OLD TICKETS: {:?}", e);
+            }
+
+            let hour = 60 * 60;
+            let day = hour * 24;
+
+            tokio::time::sleep(std::time::Duration::from_millis(day * 5)).await;
+        }
+    });
+
+    rocket
+}
+
 #[rocket::launch]
 fn rocket() -> _ {
     rocket::build()
         .attach(DbConn::fairing())
         .attach(AdHoc::on_ignite("Apply diesel_migrations", apply_diesel_migrations))
+        .attach(AdHoc::on_ignite("Start ticket garbage collector", ticket_gc))
         .mount("/", FileServer::from("static"))
         .mount("/", rocket::routes![
             get_stats,

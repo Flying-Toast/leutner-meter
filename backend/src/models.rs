@@ -16,6 +16,7 @@ pub struct Ticket {
     pub id: i32,
     pub ticket: String,
     pub case_id: String,
+    pub timestamp: i32,
 }
 
 #[derive(Insertable)]
@@ -23,9 +24,33 @@ pub struct Ticket {
 struct NewTicket {
     ticket: String,
     case_id: String,
+    timestamp: i32,
+}
+
+fn current_unix_time() -> i32 {
+    std::time::UNIX_EPOCH.elapsed().unwrap().as_millis() as i32
 }
 
 impl Ticket {
+    pub async fn purge_old_tickets(conn: &DbConn) -> Result<usize, diesel::result::Error> {
+        use tickets::dsl;
+
+        let hour = 60 * 60;
+        let day = hour * 24;
+
+        let max_time_ago = std::time::Duration::from_secs(day * 5);
+
+        let earliest_time = current_unix_time() - (max_time_ago.as_millis() as i32);
+
+        conn.run(move |c| {
+            diesel::delete(
+                tickets::table.filter(
+                    dsl::timestamp.le(earliest_time)
+                )
+            ).execute(c)
+        }).await
+    }
+
     pub async fn is_valid(ticket: &str, conn: &DbConn) -> Result<bool, diesel::result::Error> {
         use tickets::dsl;
 
@@ -44,6 +69,7 @@ impl Ticket {
                 .values(NewTicket {
                     ticket,
                     case_id,
+                    timestamp: current_unix_time(),
                 })
                 .execute(c)
         }).await

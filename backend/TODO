@@ -1,1 +1,2 @@
-purge old tickets from `tickets` table
+purge old tickets from `tickets` table - DONE
+	- make sure it works lol

@@ -13,6 +13,7 @@ table! {
         id -> Integer,
         ticket -> Text,
         case_id -> Text,
+        timestamp -> Integer,
     }
 }
 
