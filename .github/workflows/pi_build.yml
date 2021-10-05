@@ -1,0 +1,36 @@
+name: cross build for pi
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+# NOTE: If cargo build stops working, it's probably because the libsqlite3-sys dependency version in Cargo.toml is out of sync with the libsqlite3-sys version used by diesel
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: armv7-unknown-linux-gnueabihf
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Rustup
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Install cross compiler
+        run: sudo apt install -y gcc-arm-linux-gnueabihf
+
+      - name: Cargo build
+        run: cd backend && cargo build --release --target ${{ matrix.target }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: piexe
+          path: backend/target/${{ matrix.target }}/release/backend
