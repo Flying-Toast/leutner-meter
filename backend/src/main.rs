@@ -182,7 +182,6 @@ async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn, host: HostH
     let good_redirect = Redirect::to(uri!("/#vote"));
     let bad_redirect = Redirect::to(uri!("/auth-failed"));
 
-    //TODO: PURGE OLD TICKETS FROM TICKETS TABLE
     if let Ok(resp) = get(url).await {
         if let Ok(text) = resp.text().await {
             let mut lines = text.lines();
