@@ -18,9 +18,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Rustup
-        run: rustup target add ${{ matrix.target }}
-
       - name: Set up cross compiler
         run: cargo install cross
 
