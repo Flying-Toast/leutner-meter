@@ -1,0 +1,12 @@
+[Unit]
+Description=Rateleutner web server
+
+[Service]
+Type=simple
+User=pi
+Restart=always
+WorkingDirectory=/home/pi/rateleutner
+ExecStart=/home/pi/rateleutner/rateleutner-server
+
+[Install]
+WantedBy=default.target

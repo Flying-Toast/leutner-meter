@@ -1,0 +1,9 @@
+[Unit]
+Description=Set iptables rules for rateleutner-server
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8000
+
+[Install]
+WantedBy=default.target
