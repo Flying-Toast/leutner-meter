@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - target: armv7-unknown-linux-gnueabihf
+          - target: arm-unknown-linux-gnueabihf
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
