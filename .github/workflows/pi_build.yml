@@ -28,10 +28,10 @@ jobs:
         run: cd backend && cross build --release --target ${{ matrix.target }}
 
       - name: Package
-        run: mkdir dist && mv backend/target/${{ matrix.target }}/release/backend backend/Rocket.toml backend/.env backend/static dist
+        run: mkdir dist && mv backend/target/${{ matrix.target }}/release/backend backend/Rocket.toml backend/.env backend/static dist && tar -cf dist.tar dist
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: pi_dist
-          path: dist
+          name: dist
+          path: dist.tar
