@@ -18,14 +18,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Build frontend
+        run: cd frontend && npm i && npm build
+
       - name: Set up cross compiler
         run: cargo install cross
 
       - name: Build
         run: cd backend && cross build --release --target ${{ matrix.target }}
 
+      - name: Package
+        run: mkdir dist && mv backend/target/${{ matrix.target }}/release/backend backend/Rocket.toml backend/.env backend/static dist
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: piexe
-          path: backend/target/${{ matrix.target }}/release/backend
+          name: pi_dist
+          path: dist
