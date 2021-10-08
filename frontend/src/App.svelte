@@ -53,15 +53,19 @@
 
 		{#if finishedApiFetch}
 			{#if mealInProgress}
-				{#if hash == "#vote"}
+				{#if hash == "#do-vote"}
 					<VotingForm {maxScore}/>
 				{:else}
-					<Gauge min={0} max={maxScore} value={score}/>
-					{#if numVotes == 0}
-						<div>Nobody has rated this meal yet.<br>Scan the other QR code on your way out of Leutner to vote.</div>
+					{#if hash == "#vote"}
+						<a class="votelink" href="#do-vote">Vote now</a>
 					{:else}
-						<Score {score} outOf={maxScore}/>
-						<div class="num-votes">based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
+						<Gauge min={0} max={maxScore} value={score}/>
+						{#if numVotes == 0}
+							<div>Nobody has rated this meal yet.<br>Scan the other QR code on your way out of Leutner to vote.</div>
+						{:else}
+							<Score {score} outOf={maxScore}/>
+							<div class="num-votes">based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
+						{/if}
 					{/if}
 				{/if}
 			{/if}
@@ -77,6 +81,10 @@
 </div>
 
 <style>
+	.votelink {
+		font-size: 175%;
+	}
+
 	.wrapper {
 		display: inline-block;
 		margin: 4px;

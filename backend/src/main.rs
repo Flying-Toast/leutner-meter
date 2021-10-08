@@ -179,7 +179,7 @@ async fn sso_auth(ticket: String, jar: &CookieJar<'_>, conn: DbConn, host: HostH
         ticket,
         format!("http://{}/sso-auth", host.0),
     );
-    let good_redirect = Redirect::to(uri!("/#vote"));
+    let good_redirect = Redirect::to(uri!("/#do-vote"));
     let bad_redirect = Redirect::to(uri!("/auth-failed"));
 
     if let Ok(resp) = get(url).await {
