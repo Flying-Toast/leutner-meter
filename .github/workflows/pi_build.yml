@@ -28,7 +28,7 @@ jobs:
         run: cd backend && cross build --release --target ${{ matrix.target }}
 
       - name: Package
-        run: mv backend/target/${{ matrix.target }}/release/backend backend/Rocket.toml backend/.env backend/static dist && rm dist/static/build/.gitignore && mv dist/backend dist/rateleutner-server && tar -cf dist.tar dist
+        run: mv backend/target/${{ matrix.target }}/release/backend backend/Rocket.toml backend/static dist && rm dist/static/build/.gitignore && mv dist/backend dist/rateleutner-server && tar -cf dist.tar dist
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
