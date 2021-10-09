@@ -41,7 +41,8 @@
 					resp.text()
 						.then(txt => alert(`Error submitting vote: ${txt}`));
 				} else {
-					location = "/";
+					location = "/#did-vote";
+					location.reload();
 				}
 			});
 	}
