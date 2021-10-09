@@ -71,11 +71,9 @@
 						{/if}
 					{/if}
 				{/if}
-			{/if}
-
-			{#if mealInProgress}
 				<hr>
 			{/if}
+
 			<CurrentMeal meal={currentMeal}/>
 		{:else}
 			<Loader/>

@@ -1,1 +1,1 @@
-<h1>On a scale of 🤮 to 😐, how's the food at Leutner today?</h1>
+<h1>On a scale of 🤮 to 😐, how's the food at Leutner?</h1>
