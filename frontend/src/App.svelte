@@ -48,7 +48,7 @@
 <div class="center">
 	<div class="wrapper">
 		{#if mealInProgress}
-			<Header meal={currentMeal}/>
+			<Header/>
 		{/if}
 
 		{#if finishedApiFetch}
@@ -71,9 +71,11 @@
 						{/if}
 					{/if}
 				{/if}
-				<hr>
 			{/if}
 
+			{#if mealInProgress}
+				<hr>
+			{/if}
 			<CurrentMeal meal={currentMeal}/>
 		{:else}
 			<Loader/>
