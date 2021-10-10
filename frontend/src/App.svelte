@@ -56,19 +56,15 @@
 				{#if hash == "#do-vote"}
 					<VotingForm {maxScore}/>
 				{:else}
-					{#if hash == "#vote"}
-						<a class="votelink" href="#do-vote">Vote now</a>
+					<Gauge min={0} max={maxScore} value={score}/>
+					{#if numVotes == 0}
+						<div>Nobody has rated this meal yet.</div>
 					{:else}
-						<Gauge min={0} max={maxScore} value={score}/>
-						{#if numVotes == 0}
-							<div>Nobody has rated this meal yet.</div>
-						{:else}
-							<Score {score} outOf={maxScore}/>
-							<div class="num-votes">based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
-						{/if}
-						{#if hash != "#did-vote"}
-							<div>Scan the other QR code on your way out of Leutner to vote.</div>
-						{/if}
+						<Score {score} outOf={maxScore}/>
+						<div class="num-votes">based on {numVotes} vote{numVotes > 1 ? "s" : ""}</div>
+					{/if}
+					{#if hash != "#did-vote"}
+						<a class="votelink" href="#do-vote">Vote now</a>
 					{/if}
 				{/if}
 				<hr>
