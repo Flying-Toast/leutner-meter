@@ -1,7 +1,3 @@
-# It's pronounced "Lootner"
+# Does the food at Leutner Commons suck today? 
 
-Running dev server:
-
-* `cd backend` & `cargo run`
-* (in a separate terminal window) `cd frontend` & `npm run dev`
-* Open http://localhost:8000
+Scan the QR code outside Leutner to rate your food and see the average score for the current meal.
