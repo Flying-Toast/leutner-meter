@@ -79,7 +79,7 @@ async fn ticket_gc(rocket: Rocket<Build>) -> Rocket<Build> {
                 eprintln!("ERROR PURGING OLD TICKETS: {:?}", e);
             }
 
-            let hour = 60 * 60;
+            let hour = 1000 * 60 * 60;
             let day = hour * 24;
 
             tokio::time::sleep(std::time::Duration::from_millis(day * 5)).await;
